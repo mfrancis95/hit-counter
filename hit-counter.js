@@ -1,30 +1,32 @@
 function hitCounter(countSame) {
     var hits = new Map();
-    var hitCount = 0;
+    var totalHits = 0, uniqueHits = 0;
     var middleware = (request, response, next) => {
         var ip = request.ip;
         var hit = hits.get(ip);
         if (!hit) {
             hit = {count: 1, last: new Date()};
             hits.set(ip, hit);
-            hitCount++;
+            totalHits++;
+            uniqueHits++;
         }
         else if (countSame) {
             var now = new Date();
             if (now.getTime() - hit.last.getTime() > countSame) {
                 hit.count++;
                 hit.last = now;
-                hitCount++;
+                totalHits++;
             }
         }
         next();
     };
-    middleware.clearHits = () => {
+    middleware.clear = () => {
         hits.clear();
-        hitCount = 0;
+        totalHits = uniqueHits = 0;
     };
-    middleware.hitCount = () => hitCount;
     middleware.hits = () => hits.entries();
+    middleware.totalHits = () => totalHits;
+    middleware.uniqueHits = () => uniqueHits;
     return middleware;
 }
 
