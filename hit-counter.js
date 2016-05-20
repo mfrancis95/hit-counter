@@ -1,3 +1,5 @@
+var fs = require("fs");
+
 function hitCounter(countSame) {
     var hits = new Map();
     var totalHits = 0, uniqueHits = 0;
@@ -25,6 +27,18 @@ function hitCounter(countSame) {
         totalHits = uniqueHits = 0;
     };
     middleware.hits = () => hits.entries();
+    middleware.save = file => {
+        return new Promise((resolve, reject) => {
+            fs.writeFile(file, JSON.stringify(Array.from(hits.entries())), error => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve();
+                }
+            });
+        });
+    };
     middleware.totalHits = () => totalHits;
     middleware.uniqueHits = () => uniqueHits;
     return middleware;
