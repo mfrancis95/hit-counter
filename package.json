@@ -1,0 +1,9 @@
+{
+  "name": "hit-counter",
+  "version": "1.0.0",
+  "main": "hit-counter.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mfrancis95/hit-counter.git"
+  }
+}

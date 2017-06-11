@@ -1,19 +1,18 @@
-var fs = require("fs");
+const fs = require("fs");
 
 function hitCounter(countSame) {
-    var hits = new Map();
-    var totalHits = 0, uniqueHits = 0;
-    var middleware = (request, response, next) => {
-        var ip = request.ip;
-        var hit = hits.get(ip);
+    const hits = new Map();
+    let totalHits = 0, uniqueHits = 0;
+    const middleware = (request, response, next) => {
+        let hit = hits.get(request.ip);
         if (!hit) {
             hit = {count: 1, last: new Date()};
-            hits.set(ip, hit);
+            hits.set(request.ip, hit);
             totalHits++;
             uniqueHits++;
         }
         else if (countSame) {
-            var now = new Date();
+            const now = new Date();
             if (now.getTime() - hit.last.getTime() > countSame) {
                 hit.count++;
                 hit.last = now;
@@ -29,7 +28,15 @@ function hitCounter(countSame) {
     middleware.hits = () => hits.entries();
     middleware.save = file => {
         return new Promise((resolve, reject) => {
-            fs.writeFile(file, JSON.stringify(Array.from(hits.entries())), error => {
+            const json = {
+                hits: Array.from(hits).reduce((object, entry) => {
+                    object[entry[0]] = entry[1];
+                    return object;
+                }, {}),
+                totalHits: totalHits,
+                uniqueHits: uniqueHits
+            };
+            fs.writeFile(file, JSON.stringify(json), error => {
                 if (error) {
                     reject(error);
                 }
